@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import classes from './Quize.module.css'
 import ActiveQuize from "../../components/ActiveQuize/ActiveQuize";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
+import axios from "../../axios/axios-quiz";
+import Loader from "../../components/UI/Loader/Loader";
+import { withRouter } from './../../hoc/withRouter/withRouter'
 
 class Quize extends Component {
     state = {
@@ -9,30 +12,8 @@ class Quize extends Component {
         isFinished: false,
         activeQuestion: 0,
         answerState: null,
-        quize: [
-            {
-                question: 'What color is sky?',
-                id: 1,
-                rightAnswer: 2,
-                answers: [
-                    { text: 'Black', id: 1 },
-                    { text: 'Blue', id: 2 },
-                    { text: 'Green', id: 3 },
-                    { text: 'White', id: 4 }
-                ]
-            },
-            {
-                question: 'What color is sun?',
-                id: 2,
-                rightAnswer: 4,
-                answers: [
-                    { text: 'Black', id: 1 },
-                    { text: 'Blue', id: 2 },
-                    { text: 'Green', id: 3 },
-                    { text: 'Yelow', id: 4 }
-                ]
-            }
-        ]
+        quize: [],
+        loading: true
     }
 
     onAnswerClickHandler = (answerId) => {
@@ -88,30 +69,53 @@ class Quize extends Component {
         })
     }
 
+    async componentDidMount() {
+
+        const { id } = this.props.router.params
+
+        console.log('fff', id)
+        try {
+            const response = await axios.get(`/quizes/${id}.json`)
+            const quiz = response.data
+
+            this.setState({
+                quize: quiz,
+                loading: false
+            })
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     render() {
         return (
             <div className={classes.Quize}>
                 <div className={classes.QuizeWrapp}>
                     <h1>Please, give an anwer</h1>
-                    {this.state.isFinished ?
-                        <FinishedQuiz
-                            results={this.state.results}
-                            quize={this.state.quize}
-                            restartHandler={this.restartHandler}
-                        /> :
-                        <ActiveQuize
-                            activeQuestion={this.state.activeQuestion + 1}
-                            answers={this.state.quize[this.state.activeQuestion].answers}
-                            question={this.state.quize[this.state.activeQuestion].question}
-                            onAnswerClick={this.onAnswerClickHandler}
-                            quizeLength={this.state.quize.length}
-                            state={this.state.answerState}
-                        />
+
+                    {
+                        this.state.loading
+                            ? <Loader />
+                            : this.state.isFinished ?
+                                <FinishedQuiz
+                                    results={this.state.results}
+                                    quize={this.state.quize}
+                                    restartHandler={this.restartHandler}
+                                /> :
+                                <ActiveQuize
+                                    activeQuestion={this.state.activeQuestion + 1}
+                                    answers={this.state.quize[this.state.activeQuestion].answers}
+                                    question={this.state.quize[this.state.activeQuestion].question}
+                                    onAnswerClick={this.onAnswerClickHandler}
+                                    quizeLength={this.state.quize.length}
+                                    state={this.state.answerState}
+                                />
                     }
+
                 </div>
             </div>
         )
     }
 }
 
-export default Quize
+export default withRouter(Quize)
