@@ -73,7 +73,6 @@ class Quize extends Component {
 
         const { id } = this.props.router.params
 
-        console.log('fff', id)
         try {
             const response = await axios.get(`/quizes/${id}.json`)
             const quiz = response.data
