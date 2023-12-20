@@ -39,6 +39,7 @@ const Quiz = () => {
     }, [id])
 
     const onAnswerClickHandler = (answerId) => {
+        console.log('click', answerId)
         if (state.answerState) {
             const key = Object.keys(state.answerState)[0]
             if (state.answerState[key] === 'success') {
@@ -49,7 +50,7 @@ const Quiz = () => {
         const question = state.quize[state.activeQuestion]
         const results = state.results
 
-        if (question.rightAnswer === answerId) {
+        if (question.rightAnswerId === answerId) {
             if (!results[question.id]) {
                 results[question.id] = 'success'
             }
@@ -87,19 +88,20 @@ const Quiz = () => {
     }
 
     const restartHandler = () => {
-        setState({
+        setState((prevState) => ({
+            ...prevState,
             results: {},
             isFinished: false,
             activeQuestion: 0,
             answerState: null,
-        })
+        }))
     }
 
     return (
         <div className={classes.Quize}>
             <div className={classes.QuizeWrapp}>
                 <h1>Please, give an anwer</h1>
-                {console.log(state.isFinished)}
+
                 {
                     state.loading
                         ? <Loader />
